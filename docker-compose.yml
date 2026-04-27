@@ -1,0 +1,19 @@
+
+version: "3.8"
+services:
+  gemini_backend:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./backend/app:/app
+      - ./backend/requirements.txt:/requirements.txt
+      - ./frontend/public:/frontend
+      - /:/root_fs
+    command: bash -c "pip install -r /requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gemini_ide.rule=Host(`gemini.selvaggiconsultores.com`)"
+      - "traefik.http.routers.gemini_ide.entrypoints=web"
+      - "traefik.http.middlewares.gemini-auth.basicauth.users=admin:$$apr1$$XQZg8p0T$$q2.951.qMvS.8M4gH4p3q/"
+      - "traefik.http.routers.gemini_ide.middlewares=gemini-auth"
+    restart: always
